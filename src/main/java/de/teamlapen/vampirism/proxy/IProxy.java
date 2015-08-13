@@ -60,4 +60,6 @@ public interface IProxy {
 	void setPlayerBat(EntityPlayer player, boolean bat);
 
 	String getKey(REFERENCE.KEY key);
+
+	void registerConvertibles();
 }

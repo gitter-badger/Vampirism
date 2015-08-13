@@ -11,6 +11,7 @@ import de.teamlapen.vampirism.ModPotion;
 import de.teamlapen.vampirism.VampirismEventHandler;
 import de.teamlapen.vampirism.VampirismMod;
 import de.teamlapen.vampirism.entity.*;
+import de.teamlapen.vampirism.entity.converted.BiteableRegistry;
 import de.teamlapen.vampirism.entity.minions.EntityRemoteVampireMinion;
 import de.teamlapen.vampirism.entity.minions.EntitySaveableVampireMinion;
 import de.teamlapen.vampirism.entity.player.VampirePlayer;
@@ -24,6 +25,7 @@ import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityList;
 import net.minecraft.entity.EntityLiving;
 import net.minecraft.entity.EnumCreatureType;
+import net.minecraft.entity.passive.EntityCow;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.item.Item;
@@ -170,6 +172,7 @@ public abstract class CommonProxy implements IProxy {
 		registerEntity(EntityBlindingBat.class, REFERENCE.ENTITY.BLINDING_BAT_NAME, false);
 		registerEntity(EntityDummyBittenAnimal.class,REFERENCE.ENTITY.DUMMY_CREATURE,false);
 		registerEntity(EntityPortalGuard.class, REFERENCE.ENTITY.PORTAL_GUARD, false);
+		registerEntity(EntityConvertedCreature.class, REFERENCE.ENTITY.CONVERTED_CREATURE, false);
 
 		Item item = new ItemSpawnEgg(spawnableEntityNames);
 		GameRegistry.registerItem(item, ItemSpawnEgg.name);
@@ -195,5 +198,10 @@ public abstract class CommonProxy implements IProxy {
 			VampirePlayer.get(p).wakeUpPlayer(true, false, false, true);
 
 		}
+	}
+
+	@Override
+	public void registerConvertibles() {
+		BiteableRegistry.registerConvertable(EntityCow.class, null);
 	}
 }

@@ -39,12 +39,11 @@ public class Configs {
 	public static boolean reset_balance_in_dev;
 
 	public static int blood_vision_recompile_ticks;
-	
+
+	/**
+	 * Used to store blood values during initialization. Empty after init.
+	 */
 	public static final HashMap<String,Integer> bloodValues=new HashMap<String,Integer>();
-	
-	public static boolean bloodValuesRead=false;
-	
-	public static float bloodValueMultiplier;
 	
 	public static int potion_id_sanguinare;
 	
@@ -95,7 +94,6 @@ public class Configs {
 		
 		try {
 			loadBloodValuesFromReader(new InputStreamReader(Configs.class.getResourceAsStream("/default_blood_values.txt")),"default_blood_values.txt");
-			bloodValuesRead=true;
 		} catch (IOException e) {
 			Logger.e("Configs", e, "Could not read default blood values, this should not happen and destroys the mod experience");
 		}
@@ -103,16 +101,10 @@ public class Configs {
 		if(bloodConfig.exists()){
 			try {
 				loadBloodValuesFromReader(new FileReader(bloodConfig),bloodConfig.getName());
-				bloodValuesRead=true;
 				Logger.i("Configs","Succesfully loaded additional blood value file");
 			} catch (IOException e) {
 				Logger.e("Configs", e, "Could not read blood values from config file %s",bloodConfig.getName());
 			}
-		}
-		
-		Integer i=bloodValues.get("multiplier");
-		if(i!=null){
-			bloodValueMultiplier=i/10F;
 		}
 		
 		config = new Configuration(mainConfig);

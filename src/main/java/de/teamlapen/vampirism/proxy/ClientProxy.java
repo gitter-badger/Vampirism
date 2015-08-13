@@ -17,6 +17,7 @@ import de.teamlapen.vampirism.client.gui.VampireHudOverlay;
 import de.teamlapen.vampirism.client.model.ModelDracula;
 import de.teamlapen.vampirism.client.model.ModelGhost;
 import de.teamlapen.vampirism.client.render.*;
+import de.teamlapen.vampirism.client.render.converted.RenderConvertibleDefault;
 import de.teamlapen.vampirism.client.render.particle.ParticleHandler;
 import de.teamlapen.vampirism.entity.*;
 import de.teamlapen.vampirism.entity.minions.EntityVampireMinion;
@@ -42,9 +43,6 @@ import net.minecraft.client.settings.GameSettings;
 import net.minecraft.client.shader.ShaderGroup;
 import net.minecraft.client.util.JsonException;
 import net.minecraft.entity.Entity;
-import net.minecraft.entity.EntityCreature;
-import net.minecraft.entity.EntityLiving;
-import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.Item;
 import net.minecraft.potion.PotionEffect;
@@ -71,13 +69,7 @@ public class ClientProxy extends CommonProxy {
 		if (entity instanceof AbstractClientPlayer) {
 			if (Configs.modify_vampire_player_texture&&VampirePlayer.get((EntityPlayer) entity).getLevel() > 0) {
 				ResourceLocation vamp = new ResourceLocation("vampirism/temp/" + loc.getResourcePath());
-				TextureHelper.createVampireTexture((EntityLivingBase) entity, loc, vamp);
-				return vamp;
-			}
-		} else if (entity instanceof EntityCreature) {
-			if (VampireMob.get((EntityCreature) entity).isVampire()) {
-				ResourceLocation vamp = new ResourceLocation("vampirism/temp/" + loc.getResourceDomain()+"/"+loc.getResourcePath());
-				TextureHelper.createVampireTexture((EntityLiving) entity, loc, vamp);
+				TextureHelper.createVampireTexture(TextureHelper.playerOverlay, loc, vamp);
 				return vamp;
 			}
 		}
@@ -160,6 +152,7 @@ public class ClientProxy extends CommonProxy {
 		RenderingRegistry.registerEntityRenderingHandler(EntityDeadMob.class, new RendererDeadMob());
 		RenderingRegistry.registerEntityRenderingHandler(EntityBlindingBat.class, new RenderBat());
 		RenderingRegistry.registerEntityRenderingHandler(EntityPortalGuard.class,new RendererPortalGuard(0.5F));
+		RenderingRegistry.registerEntityRenderingHandler(EntityConvertedCreature.class, new RendererConvertedCreature());
 		MinecraftForgeClient.registerItemRenderer(ModItems.pitchfork, new PitchforkRenderer());
 		// MinecraftForgeClient.registerItemRenderer(ModItems.torch, new RendererTorch());
 
@@ -219,5 +212,11 @@ public class ClientProxy extends CommonProxy {
 	@Override
 	public String getKey(KEY key) {
 		return GameSettings.getKeyDisplayString(KeyInputEventHandler.getBindedKey(key));
+	}
+
+	@Override
+	public void registerConvertibles() {
+		super.registerConvertibles();
+		RenderConvertibleDefault.registerVanillaRenderes();
 	}
 }

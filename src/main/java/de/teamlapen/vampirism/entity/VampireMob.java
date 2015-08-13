@@ -5,6 +5,8 @@ import cpw.mods.fml.relauncher.SideOnly;
 import de.teamlapen.vampirism.Configs;
 import de.teamlapen.vampirism.ModPotion;
 import de.teamlapen.vampirism.entity.ai.VanillaAIModifier;
+import de.teamlapen.vampirism.entity.converted.BiteableEntry;
+import de.teamlapen.vampirism.entity.converted.BiteableRegistry;
 import de.teamlapen.vampirism.entity.minions.*;
 import de.teamlapen.vampirism.entity.player.VampirePlayer;
 import de.teamlapen.vampirism.network.UpdateEntityPacket;
@@ -69,27 +71,9 @@ public class VampireMob implements ISyncableExtendedProperties, IMinion {
 
 	public VampireMob(EntityCreature mob) {
 		entity = mob;
-		boolean flag1=false;
-		if(mob instanceof EntityVampireHunter){
-			max_blood=-2;
-		}
-		else if(Configs.bloodValuesRead){
-			Integer i=Configs.bloodValues.get(mob.getClass().getName());
-			if(i==null||i==0){
-				max_blood=-1;
-			}
-			else{
-				max_blood=Math.round(((float)Math.abs(i))*Configs.bloodValueMultiplier);
-				if(Integer.signum(i)==1){
-					flag1=true;
-				}
-			}
-		}
-		else{
-			max_blood=5;
-		}
-		canBecomeVampire=flag1;
-		blood = max_blood;
+		BiteableEntry biteableEntry = BiteableRegistry.getEntry(mob.getClass());
+		canBecomeVampire = biteableEntry.convertable;
+		blood = max_blood = biteableEntry.max_blood;
 		type = (byte) 0;
 		commands = new ArrayList<IMinionCommand>();
 		commands.add(new DefendLordCommand(0, this));
@@ -124,7 +108,7 @@ public class VampireMob implements ISyncableExtendedProperties, IMinion {
 		if (blood < max_blood / 2) {
 			if (blood == 0 || entity.getRNG().nextInt(blood) == 0) {
 
-				if (canBecomeVampire && canTurn && entity.getRNG().nextBoolean()) {
+				if (canBecomeVampire && canTurn /* TODO enable again && entity.getRNG().nextBoolean()*/) {
 					if (Configs.realismMode) {
 						entity.addPotionEffect(new PotionEffect(ModPotion.sanguinare.id, BALANCE.VAMPIRE_MOB_SANGUINARE_DURATION * 20));
 					} else {
@@ -203,6 +187,13 @@ public class VampireMob implements ISyncableExtendedProperties, IMinion {
 		return ((type & 2) == 2);
 	}
 
+
+	/**
+	 * Only used to convert old vampires. All new vampires are instances of {@link EntityConvertedCreature}
+	 *
+	 * @return
+	 */
+	@Deprecated
 	public boolean isVampire() {
 		return ((type & 1) == 1);
 	}
@@ -228,20 +219,15 @@ public class VampireMob implements ISyncableExtendedProperties, IMinion {
 					}
 				} else {
 					Logger.w(TAG, "Mob %s is a minion but does not have a lord uuid saved (%s). This should only happen once", entity, properties);
-					if (isVampire()) {
-						type = 2;
-					} else {
+
 						type = 0;
-					}
+
 				}
 			}
 
 			if (isMinion()) {
 				this.setMinion();
 				this.activateMinionCommand(command);
-			}
-			if (isVampire()) {
-				this.setVampire();
 			}
 		}
 
@@ -277,15 +263,13 @@ public class VampireMob implements ISyncableExtendedProperties, IMinion {
 	}
 
 	public boolean makeVampire() {
-		if (!canBecomeVampire || blood < 0) {
+		if (!canBecomeVampire){
 			return false;
 		}
 		blood = 0;
-		setVampire();
-
-		entity.addPotionEffect(new PotionEffect(Potion.weakness.id, 200, 2));
-		entity.addPotionEffect(new PotionEffect(Potion.moveSlowdown.id, 100, 2));
-		this.sync();
+		EntityConvertedCreature convertedCreature = EntityConvertedCreature.createFrom(entity);
+		entity.worldObj.spawnEntityInWorld(convertedCreature);
+		entity.setDead();
 		return true;
 	}
 
@@ -311,6 +295,10 @@ public class VampireMob implements ISyncableExtendedProperties, IMinion {
 				}
 			}
 			if (entity.isPotionActive(ModPotion.sanguinare.id) && entity.getActivePotionEffect(ModPotion.sanguinare).getDuration() == 1) {
+				this.makeVampire();
+			}
+			//Compatibility code for old worlds
+			if (isVampire()) {
 				this.makeVampire();
 			}
 		}
@@ -384,7 +372,7 @@ public class VampireMob implements ISyncableExtendedProperties, IMinion {
 
 	@Override
 	public String toString() {
-		return String.format(TAG + " of %s minion(%b) vampire(%b)", entity, isMinion(), isVampire());
+		return String.format(TAG + " of %s minion(%b)", entity, isMinion());
 	}
 
 	@Override

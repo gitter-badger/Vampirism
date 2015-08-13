@@ -5,6 +5,7 @@ import cpw.mods.fml.common.gameevent.TickEvent;
 import de.teamlapen.vampirism.Configs;
 import de.teamlapen.vampirism.VampirismMod;
 import de.teamlapen.vampirism.client.gui.GUISleepCoffin;
+import de.teamlapen.vampirism.entity.EntityConvertedCreature;
 import de.teamlapen.vampirism.entity.VampireMob;
 import de.teamlapen.vampirism.entity.player.VampirePlayer;
 import de.teamlapen.vampirism.entity.player.skills.BatSkill;
@@ -313,7 +314,7 @@ public class RenderHandler {
 		float blue = 0.0F;
 
 		if (entity instanceof EntityCreature) {
-			if (VampireMob.get((EntityCreature) entity).isVampire()) {
+			if (entity instanceof EntityConvertedCreature) {
 				red = 0.23127F;
 				green = 0.04313F;
 				blue = 0.04313F;

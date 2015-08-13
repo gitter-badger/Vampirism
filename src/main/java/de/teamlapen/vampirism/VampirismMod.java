@@ -11,6 +11,7 @@ import cpw.mods.fml.common.registry.VillagerRegistry;
 import cpw.mods.fml.relauncher.Side;
 import cpw.mods.fml.relauncher.SideOnly;
 import de.teamlapen.vampirism.castleDim.WorldProviderCastle;
+import de.teamlapen.vampirism.entity.converted.BiteableRegistry;
 import de.teamlapen.vampirism.entity.player.skills.Skills;
 import de.teamlapen.vampirism.generation.WorldGenVampirism;
 import de.teamlapen.vampirism.generation.castle.CastleGenerator;
@@ -73,9 +74,10 @@ public class VampirismMod {
 	public void init(FMLInitializationEvent event) {
 		castleDimensionId=DimensionManager.getNextFreeDimId();
 		DimensionManager.registerProviderType(castleDimensionId, WorldProviderCastle.class,false);
-		DimensionManager.registerDimension(castleDimensionId,castleDimensionId);
+		DimensionManager.registerDimension(castleDimensionId, castleDimensionId);
 		proxy.registerEntitys();
 		proxy.registerRenderer();
+		proxy.registerConvertibles();
 		GameRegistry.registerWorldGenerator(new WorldGenVampirism(), 1000);
 		VillagerRegistry.instance().registerVillageCreationHandler(new VillageCreationHandler());
 		MapGenStructureIO.func_143031_a(VillageModChurchPiece.class, "ViVMC");
@@ -99,7 +101,7 @@ public class VampirismMod {
 	@EventHandler
 	public void postInit(FMLPostInitializationEvent event) {
 		VillageBiomes.postInit(event);
-		
+		BiteableRegistry.finishRegistration();
 		String potion=ModPotion.checkPotions();
 		if(potion!=null){
 			Logger.e("PostInit", "Not all potions were successfully added {%s}", potion);

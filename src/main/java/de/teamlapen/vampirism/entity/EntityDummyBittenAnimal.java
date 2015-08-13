@@ -7,7 +7,7 @@ import net.minecraft.entity.EntityLiving;
 import net.minecraft.world.World;
 
 /**
- * Just a simple dummy class, which makes it possible to spawn bitten mobs
+ * Just a simple dummy class, which makes it possible to spawn bitten mobs TODO replace by {@link EntityConvertedCreature}
  */
 public class EntityDummyBittenAnimal extends EntityLiving {
 	public EntityDummyBittenAnimal(World p_i1595_1_) {
